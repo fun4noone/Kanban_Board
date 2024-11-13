@@ -1,32 +1,39 @@
-name: Deploy to Amazon ECS
+name: CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - master
 
-  stages:
-    - build
-    - push
-  
-  variables:
-    IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-  
-  before_script:
-    - apk add --no-cache python3 py3-pip
-    - pip3 install awscli
-    - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-  
+jobs:
   build:
-    stage: build
-    script:
-      - docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
-      - docker tag $ECR_REPOSITORY:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
-    only:
-      - master
-  
-  push:
-    stage: push
-    script:
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
-    only:
-      - master
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-pip
+        pip3 install awscli
+
+    - name: Log in to Amazon ECR
+      id: ecr_login
+      run: |
+        aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
+
+    - name: Build Docker image
+      run: |
+        docker build -t ${{ secrets.ECR_REPOSITORY }}:${{ github.sha }} .
+        docker tag ${{ secrets.ECR_REPOSITORY }}:${{ github.sha }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_FE }}:${{ github.sha }}
+
+    - name: Push Docker image
+      run: |
+        docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_FE }}:${{ github.sha }}
