@@ -1,1 +1,26 @@
-echo "testing"
+stages:
+  - build
+  - push
+
+variables:
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+
+before_script:
+  - apk add --no-cache python3 py3-pip
+  - pip3 install awscli
+  - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+
+build:
+  stage: build
+  script:
+    - docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+    - docker tag $ECR_REPOSITORY:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+  only:
+    - master
+
+push:
+  stage: push
+  script:
+    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+  only:
+    - master
