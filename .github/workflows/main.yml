@@ -41,17 +41,20 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build Docker images
+    - name: Build Kanban_app Docker image
       run: |
-        docker-compose build
-        docker images  # This will list all built images
+        docker build -t kanban-app:latest ./Kanban_app
+
+    - name: Build Kanban_ui Docker image
+      run: |
+        docker build -t kanban-ui:latest ./Kanban_ui
 
     - name: Tag Docker images
       run: |
-        docker tag kanban-app 349224041754.dkr.ecr.eu-west-1.amazonaws.com/backend_kanban:1.0.4
-        docker tag kanban-ui 349224041754.dkr.ecr.eu-west-1.amazonaws.com/frontend_kanban:1.0.4
+        docker tag kanban-app:latest 349224041754.dkr.ecr.eu-west-1.amazonaws.com/backend_kanban:1.0.3
+        docker tag kanban-ui:latest 349224041754.dkr.ecr.eu-west-1.amazonaws.com/frontend_kanban:1.0.3
 
     - name: Push Docker images to ECR
       run: |
-        docker push 349224041754.dkr.ecr.eu-west-1.amazonaws.com/backend_kanban:1.0.4
-        docker push 349224041754.dkr.ecr.eu-west-1.amazonaws.com/frontend_kanban:1.0.4
+        docker push 349224041754.dkr.ecr.eu-west-1.amazonaws.com/backend_kanban:1.0.3
+        docker push 349224041754.dkr.ecr.eu-west-1.amazonaws.com/frontend_kanban:1.0.3
