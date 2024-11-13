@@ -34,12 +34,17 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-      
-    - name: Build Docker image
-      run: |
-        docker build -t ${{ secrets.ECR_REPOSITORY }}:${{ github.sha }} .
-        docker tag ${{ secrets.ECR_REPOSITORY }}:${{ github.sha }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_FE }}:${{ github.sha }}
 
-    - name: Push Docker image
+    - name: Build Docker images
       run: |
-        docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_FE }}:${{ github.sha }}
+        docker-compose build
+
+    - name: Tag Docker images
+      run: |
+        docker tag kanban-app:latest 349224041754.dkr.ecr.eu-west-1.amazonaws.com/backend_kanban:1.0.3
+        docker tag kanban-ui:latest 349224041754.dkr.ecr.eu-west-1.amazonaws.com/frontend_kanban:1.0.3
+
+    - name: Push Docker images to ECR
+      run: |
+        docker push 349224041754.dkr.ecr.eu-west-1.amazonaws.com/backend_kanban:1.0.3
+        docker push 349224041754.dkr.ecr.eu-west-1.amazonaws.com/frontend_kanban:1.0.3
