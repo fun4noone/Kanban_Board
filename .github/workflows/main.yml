@@ -43,11 +43,11 @@ jobs:
 
     - name: Build Kanban_app Docker image
       run: |
-        docker build -t kanban-app:latest ./Kanban_app
+        docker build -t kanban-app:latest ./kanban-app
 
     - name: Build Kanban_ui Docker image
       run: |
-        docker build -t kanban-ui:latest ./Kanban_ui
+        docker build -t kanban-ui:latest ./kanban-ui
 
     - name: Tag Docker images
       run: |
