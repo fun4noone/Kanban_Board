@@ -48,8 +48,8 @@ jobs:
 
     - name: Tag Docker images
       run: |
-        docker tag kanban-app:latest 349224041754.dkr.ecr.eu-west-1.amazonaws.com/backend_kanban:1.0.4
-        docker tag kanban-ui:latest 349224041754.dkr.ecr.eu-west-1.amazonaws.com/frontend_kanban:1.0.4
+        docker tag kanban-app 349224041754.dkr.ecr.eu-west-1.amazonaws.com/backend_kanban:1.0.4
+        docker tag kanban-ui 349224041754.dkr.ecr.eu-west-1.amazonaws.com/frontend_kanban:1.0.4
 
     - name: Push Docker images to ECR
       run: |
